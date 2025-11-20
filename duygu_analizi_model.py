@@ -1,160 +1,125 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": 1,
-   "id": "43ff9029-8cc7-4cff-a0d8-4e3c454b8ec8",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import pandas as pd\n",
-    "from sklearn.model_selection import train_test_split\n",
-    "from nltk.corpus import stopwords\n",
-    "import re"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 3,
-   "id": "f07b823f-f8b0-4db3-98da-3d7c493679b3",
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Veri Setinin İlk 5 Satırı:\n",
-      "                                              review sentiment\n",
-      "0  One of the other reviewers has mentioned that ...  positive\n",
-      "1  A wonderful little production. <br /><br />The...  positive\n",
-      "2  I thought this was a wonderful way to spend ti...  positive\n",
-      "3  Basically there's a family where a little boy ...  negative\n",
-      "4  Petter Mattei's \"Love in the Time of Money\" is...  positive\n",
-      "\n",
-      "Veri Seti Bilgileri:\n",
-      "<class 'pandas.core.frame.DataFrame'>\n",
-      "RangeIndex: 100 entries, 0 to 99\n",
-      "Data columns (total 2 columns):\n",
-      " #   Column     Non-Null Count  Dtype \n",
-      "---  ------     --------------  ----- \n",
-      " 0   review     100 non-null    object\n",
-      " 1   sentiment  100 non-null    object\n",
-      "dtypes: object(2)\n",
-      "memory usage: 1.7+ KB\n",
-      "None\n"
-     ]
-    }
-   ],
-   "source": [
-    "data = pd.read_csv('IMDB Dataset.csv')\n",
-    "print(\"Veri Setinin İlk 5 Satırı:\")\n",
-    "print(data.head())\n",
-    "print(\"\\nVeri Seti Bilgileri:\")\n",
-    "print(data.info())"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 5,
-   "id": "7ebc874d-52b3-4af8-8919-9043fbae53ac",
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "\n",
-      "Dönüştürülmüş Hedef Değişkenin İlk 5 Satırı:\n",
-      "                                              review  sentiment\n",
-      "0  One of the other reviewers has mentioned that ...          1\n",
-      "1  A wonderful little production. <br /><br />The...          1\n",
-      "2  I thought this was a wonderful way to spend ti...          1\n",
-      "3  Basically there's a family where a little boy ...          0\n",
-      "4  Petter Mattei's \"Love in the Time of Money\" is...          1\n"
-     ]
-    }
-   ],
-   "source": [
-    "# 'positive' -> 1, 'negative' -> 0 olarak dönüştürme\n",
-    "data['sentiment'] = data['sentiment'].apply(\n",
-    "    lambda x: 1 if x == 'positive' else 0\n",
-    ")\n",
-    "\n",
-    "print(\"\\nDönüştürülmüş Hedef Değişkenin İlk 5 Satırı:\")\n",
-    "print(data.head())"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 7,
-   "id": "f18593fe-01e2-4429-b616-7858860a2a1c",
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "\n",
-      "Temizlenmiş Yorumun Bir Örneği (ilk satır):\n",
-      "one reviewers mentioned watching oz episode youll hooked right exactly happened first thing struck oz brutality unflinching scenes violence set right word go trust show faint hearted timid show pulls punches regards drugs sex violence hardcore classic use word called oz nickname given oswald maximum security state penitentary focuses mainly emerald city experimental section prison cells glass fronts face inwards privacy high agenda em city home manyaryans muslims gangstas latinos christians italians irish moreso scuffles death stares dodgy dealings shady agreements never far away would say main appeal show due fact goes shows wouldnt dare forget pretty pictures painted mainstream audiences forget charm forget romanceoz doesnt mess around first episode ever saw struck nasty surreal couldnt say ready watched developed taste oz got accustomed high levels graphic violence violence injustice crooked guards wholl sold nickel inmates wholl kill order get away well mannered middle class inmates turned prison bitches due lack street skills prison experience watching oz may become comfortable uncomfortable viewingthats get touch darker side\n"
-     ]
-    }
-   ],
-   "source": [
-    "def clean_text(text):\n",
-    "    # 1. HTML etiketlerini kaldır\n",
-    "    text = re.sub(r'<br\\s*/?>', ' ', text)\n",
-    "    \n",
-    "    # 2. Küçük harfe dönüştür\n",
-    "    text = text.lower()\n",
-    "    \n",
-    "    # 3. Alfanümerik olmayan karakterleri ve rakamları kaldır (sadece harf bırak)\n",
-    "    text = re.sub(r'[^a-z\\s]', '', text)\n",
-    "\n",
-    "    # 4. Gereksiz kelimeleri kaldır\n",
-    "    stop_words = set(stopwords.words('english'))\n",
-    "    text = ' '.join(word for word in text.split() if word not in stop_words)\n",
-    "    \n",
-    "    # 5. Birden fazla boşluğu tek boşluğa indir\n",
-    "    text = re.sub(r'\\s+', ' ', text).strip()\n",
-    "    \n",
-    "    return text\n",
-    "\n",
-    "# Veri setindeki tüm yorumları temizle\n",
-    "data['review'] = data['review'].apply(clean_text)\n",
-    "\n",
-    "print(\"\\nTemizlenmiş Yorumun Bir Örneği (ilk satır):\")\n",
-    "print(data['review'].iloc[0])"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "14aed841-c457-4dfb-ada7-785eef44cc2f",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python [conda env:base] *",
-   "language": "python",
-   "name": "conda-base-py"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.12.7"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from nltk.corpus import stopwords
+import re
+
+data = pd.read_csv('IMDB Dataset.csv')
+#print("Veri Setinin İlk 5 Satırı:")
+#print(data.head())
+#print("\nVeri Seti Bilgileri:")
+#print(data.info())
+
+# 'positive' -> 1, 'negative' -> 0 olarak dönüştürme
+data['sentiment'] = data['sentiment'].apply(
+    lambda x: 1 if x == 'positive' else 0
+)
+
+#print("\nDönüştürülmüş Hedef Değişkenin İlk 5 Satırı:")
+#print(data.head())
+
+def clean_text(text):
+    # 1. HTML etiketlerini kaldır
+    text = re.sub(r'<br\s*/?>', ' ', text)
+    
+    # 2. Küçük harfe dönüştür
+    text = text.lower()
+    
+    # 3. Alfanümerik olmayan karakterleri ve rakamları kaldır (sadece harf bırak)
+    text = re.sub(r'[^a-z\s]', '', text)
+
+    # 4. Gereksiz kelimeleri kaldır
+    stop_words = set(stopwords.words('english'))
+    text = ' '.join(word for word in text.split() if word not in stop_words)
+    
+    # 5. Birden fazla boşluğu tek boşluğa indir
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
+# Veri setindeki tüm yorumları temizle
+data['review'] = data['review'].apply(clean_text)
+
+# print("\nTemizlenmiş Yorumun Bir Örneği (ilk satır):")
+# print(data['review'].iloc[0])
+
+# Veriyi Yorumlar (X) ve Duygular (y) olarak ayırma
+X = data['review']
+y = data['sentiment']
+
+# Eğitim (%80) ve Test (%20) olarak ayırma
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print("Eğitim seti boyutu:", len(X_train))
+print("Test seti boyutu:", len(X_test))
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# TF-IDF Vektörleştiriciyi Tanımlama
+# max_features: En çok geçen 5000 kelimeyi kullan.
+tfidf_vectorizer = TfidfVectorizer(max_features=5000)
+
+# Yalnızca EĞİTİM verisine FIT edip (öğrenip) transform etme
+X_train_tfidf = tfidf_vectorizer.fit_transform(X_train)
+
+# TEST verisine sadece transform etme (yeni kelime öğrenmez, sadece eğitimde öğrendiğini uygular)
+X_test_tfidf = tfidf_vectorizer.transform(X_test)
+
+print("Eğitim TF-IDF Matrisi Şekli:", X_train_tfidf.shape)
+print("Test TF-IDF Matrisi Şekli:", X_test_tfidf.shape)
+
+from sklearn.linear_model import LogisticRegression
+
+# Modeli Tanımlama
+model = LogisticRegression(solver='liblinear', random_state=42)
+
+# Modeli Eğitme
+print("\nModel Eğitiliyor...")
+model.fit(X_train_tfidf, y_train)
+print("Model Eğitimi Tamamlandı.")
+
+from sklearn.metrics import accuracy_score, classification_report
+
+# Test veri setinde tahmin yapma
+y_pred = model.predict(X_test_tfidf)
+
+# Doğruluk (Accuracy) Puanını Hesaplama
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nModel Doğruluğu (Test Seti): {accuracy*100:.2f}%")
+
+# Detaylı Performans Raporu
+print("\nSınıflandırma Raporu:")
+print(classification_report(y_test, y_pred, target_names=['Negative (0)', 'Positive (1)']))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
