@@ -1,0 +1,16 @@
+# Sanal Ortam Klasörleri
+venv/
+env/
+
+# İşletim Sistemi ve IDE Dosyaları
+.DS_Store
+*.pyc
+
+# Not Defteri Çıktıları
+*.ipynb
+
+# Makine Öğrenmesi Modelleri ve Büyük Veri Setleri
+*.pkl
+*.h5
+*.csv
+*.xlsx
